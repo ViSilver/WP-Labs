@@ -14,10 +14,8 @@
 #define IDC_CHANGE_SIZE_BUTTON      107
 #define IDC_CHANGE_COLOR_BUTTON     108
 
-/*  Declare Windows procedure  */
 LRESULT CALLBACK WinProc (HWND, UINT, WPARAM, LPARAM);
 
-/*  Make the class name into a global variable  */
 char szClassName[ ] = "Parent Window";
 
 int WINAPI WinMain (HINSTANCE hThisInstance,
@@ -25,88 +23,70 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
                      LPSTR lpszArgument,
                      int nCmdShow)
 {
-    HWND hwnd;               /* This is the handle for our window */
-    MSG messages;            /* Here messages to the application are saved */
-    WNDCLASSEX wincl;        /* Data structure for the windowclass */
+    HWND hwnd;
+    MSG messages;
+    WNDCLASSEX wincl;
 
-    /* The Window structure */
     wincl.hInstance = hThisInstance;
     wincl.lpszClassName = szClassName;
-    wincl.lpfnWndProc = WinProc;      /* This function is called by windows */
-    wincl.style = CS_DBLCLKS | CS_HREDRAW | CS_VREDRAW;                 /* Catch double-clicks */
+    wincl.lpfnWndProc = WinProc;
+    wincl.style = CS_DBLCLKS | CS_HREDRAW | CS_VREDRAW;
     wincl.cbSize = sizeof (WNDCLASSEX);
 
-    /* Use default icon and mouse-pointer */
     wincl.hIcon = LoadIcon (NULL, IDI_APPLICATION);
     wincl.hIconSm = LoadIcon (NULL, IDI_APPLICATION);
     wincl.hCursor = LoadCursor (NULL, IDC_ARROW);
-    wincl.lpszMenuName = NULL;                 /* No menu */
-    wincl.cbClsExtra = 0;                      /* No extra bytes after the window class */
-    wincl.cbWndExtra = 0;                      /* structure or the window instance */
-    /* Use Windows's default colour as the background of the window */
+    wincl.lpszMenuName = NULL;
+    wincl.cbClsExtra = 0;
+    wincl.cbWndExtra = 0;
     wincl.hbrBackground = (HBRUSH) GetStockObject(WHITE_BRUSH);
 
-    /* Register the window class, and if it fails quit the program */
     if (!RegisterClassEx (&wincl)) return 0;
 
-    /* The class is registered, let's create the program*/
     hwnd = CreateWindowEx (
-           0,                   /* Extended possibilites for variation */
-           szClassName,         /* Classname */
-           "Lab nr. 1",         /* Title Text */
-           WS_OVERLAPPEDWINDOW, /* default window */
-           CW_USEDEFAULT,       /* Windows decides the position */
-           CW_USEDEFAULT,       /* where the window ends up on the screen */
-           650,                 /* The programs width */
-           400,                 /* and height in pixels */
-           HWND_DESKTOP,        /* The window is a child-window to desktop */
-           NULL,                /* No menu */
-           hThisInstance,       /* Program Instance handler */
-           NULL                 /* No Window Creation data */
-           );
+           0,
+           szClassName,
+           "Lab nr. 1",
+           WS_OVERLAPPEDWINDOW,
+           CW_USEDEFAULT,
+           CW_USEDEFAULT,
+           650,
+           400,
+           HWND_DESKTOP,
+           NULL,
+           hThisInstance,
+           NULL);
 
-    /* Make the window visible on the screen */
     ShowWindow (hwnd, nCmdShow);
     UpdateWindow(hwnd);
 
     srand(time(NULL));
 
-    /* Run the message loop. It will run until GetMessage() returns 0 */
     while (GetMessage (&messages, NULL, 0, 0))
     {
-        /* Translate virtual-key messages into character messages */
         TranslateMessage(&messages);
-        /* Send message to WindowProcedure */
         DispatchMessage(&messages);
     }
 
-    /* The program return-value is 0 - The value that PostQuitMessage() gave */
     return messages.wParam;
 }
 
 
-/*  This function is called by the Windows function DispatchMessage()  */
-
 LRESULT CALLBACK WinProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    static HWND hwndExitButton, hwndSubmitButton;
-    static HWND hwndInputText, hwndOutputText;
+    static HWND hwndExitButton, hwndSubmitButton, hwndInputText, hwndOutputText;
     static HWND hwndFontButton, hwndSizeButton, hwndColorButton;
-    int iScreenW, iScreenH;
-    static HGDIOBJ hfSize, phfSizes[4][3];                  //handle to font
+    int iScreenW, iScreenH, iClientWidth, iClientHeight;
+    static HGDIOBJ hfSize, phfSizes[4][3];
     static int cxChar, cyChar, iFont = 2, iSize = 1, iColor = 1;
     const char * szMove = "MOVE";
-    static char szBuffer[256];
-    static char szSubmitBuffer[512];
-    char szInputName[10], szOutputName[11], szAdjustments[12];
+    static char szBuffer[256], szSubmitBuffer[512], szInputName[10], szOutputName[11], szAdjustments[12];
     PAINTSTRUCT ps;
     HDC         hdc;
-    RECT        rcClient;
-    int iClientWidth, iClientHeight;
-    RECT rcWindow;
+    RECT rcWindow, rcClient;
     HBRUSH hbr;
 
-    switch (message)                  /* handle the messages */
+    switch (message)
     {
         case WM_CREATE:
             cxChar = LOWORD (GetDialogBaseUnits ());
@@ -121,12 +101,12 @@ LRESULT CALLBACK WinProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 
             hbr = CreateSolidBrush(RGB(0,255,0));
 
-            hwndExitButton = CreateWindow( TEXT("button"),          /*Creating the button*/
+            hwndExitButton = CreateWindow( TEXT("button"),
                 TEXT("Exit Button"),
                 WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
                 iClientWidth - 130,
                 iClientHeight - 80,
-                100, 50,                     //The dimensions of the Exit Button
+                100, 50,
                 hwnd,
                 (HMENU) IDC_EXIT_BUTTON,
                 ((LPCREATESTRUCT) lParam)->hInstance,
@@ -213,6 +193,7 @@ LRESULT CALLBACK WinProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 				(WPARAM)phfSizes[iFont][iSize],
 				MAKELPARAM(FALSE,0));
 
+            //Create Change Size Button
             hwndSizeButton = CreateWindowEx(NULL,
 				"BUTTON",
 				"Change Size",
@@ -234,6 +215,7 @@ LRESULT CALLBACK WinProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 				(WPARAM)hfSize,
 				MAKELPARAM(FALSE,0));
 
+            //Create Change Color Button
             hwndColorButton = CreateWindowEx(NULL,
 				"BUTTON",
 				"Change Color",
@@ -253,6 +235,7 @@ LRESULT CALLBACK WinProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 				(WPARAM)phfSizes[iFont][iSize],
 				MAKELPARAM(FALSE,0));
 
+            //Create the Edit Box
             hwndOutputText = CreateWindowEx(
                 (DWORD)NULL,
                 TEXT("edit"),
@@ -271,8 +254,6 @@ LRESULT CALLBACK WinProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
                 WM_SETFONT,
                 (WPARAM)phfSizes[iFont][iSize],
                 1);
-
-            //CreateWindow()
             break;
 
         case WM_PAINT:
@@ -349,22 +330,20 @@ LRESULT CALLBACK WinProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
             iClientWidth = rcClient.right - rcClient.left;
             iClientHeight = rcClient.bottom - rcClient.top;
 
-            //GetWindowRect(hwnd, &rcWindow);
-
-            MoveWindow(hwndExitButton, //Handle to Exit Button
+            MoveWindow(hwndExitButton,
                 iClientWidth * 7/10,
                 iClientHeight * 7/10,
                 100, 50,
                 TRUE);
 
-            MoveWindow(hwndInputText, //Handle to Exit Button
+            MoveWindow(hwndInputText,
                 iClientWidth * 1/10,
                 iClientHeight * 1/10,
                 iClientWidth * 55/100,
                 iClientHeight * 3/10,
                 TRUE);
 
-            MoveWindow(hwndSubmitButton, //Handle to Exit Button
+            MoveWindow(hwndSubmitButton,
                 iClientWidth * 1/10,
                 iClientHeight * 43/100,
                 100, 24,
@@ -388,7 +367,7 @@ LRESULT CALLBACK WinProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
                 100, 24,
                 TRUE);
 
-            MoveWindow(hwndOutputText, //Handle to Exit Button
+            MoveWindow(hwndOutputText,
                 iClientWidth * 1/10,
                 iClientHeight * 65/100,
                 iClientWidth * 55/100,
@@ -402,7 +381,6 @@ LRESULT CALLBACK WinProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
             {
 				case IDC_SUBMIT_BUTTON:
 				{
-				    //Copies the text from the Edit Box to submitBuffer string
 					SendMessage(hwndInputText,
 						WM_GETTEXT,
 						sizeof(szSubmitBuffer)/sizeof(szSubmitBuffer[0]),
@@ -420,6 +398,7 @@ LRESULT CALLBACK WinProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
                         ShowWindow(hwnd, SW_MAXIMIZE);
                     }
 				}
+				break;
 
                 case IDC_CHANGE_FONT_BUTTON:
                 {
@@ -428,6 +407,7 @@ LRESULT CALLBACK WinProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
                         (WPARAM)phfSizes[(++iFont)%4][iSize%3],
                         1);
                 }
+                break;
 
                 case IDC_CHANGE_SIZE_BUTTON:
                 {
@@ -436,6 +416,7 @@ LRESULT CALLBACK WinProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
                         (WPARAM)phfSizes[iFont%4][(++iSize)%3],
                         1);
                 }
+                break;
 
                 case IDC_CHANGE_COLOR_BUTTON:
                 {
@@ -446,8 +427,7 @@ LRESULT CALLBACK WinProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
                         (WPARAM)phfSizes[iFont%4][iSize%3],
                         1);
                 }
-
-				break;
+                break;
 
 				case IDC_EXIT_BUTTON:
                     for (int i = 0; i < 4; i++)
@@ -463,7 +443,7 @@ LRESULT CALLBACK WinProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
                         DeleteObject(hbr);
                     }
 
-                    PostQuitMessage (0);       /* send a WM_QUIT to the message queue */
+                    PostQuitMessage (0);
                     break;
             }
 			break;
@@ -520,10 +500,10 @@ LRESULT CALLBACK WinProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
                 DeleteObject(hbr);
             }
 
-            PostQuitMessage (0);       /* send a WM_QUIT to the message queue */
+            PostQuitMessage (0);
             break;
 
-        default:                      /* for messages that we don't deal with */
+        default:
             return DefWindowProc (hwnd, message, wParam, lParam);
     }
 
